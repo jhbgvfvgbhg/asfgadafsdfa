@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Self-Duplicating Window</title>
-
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.4/themes/redmond/jquery-ui.css">
+    <title>Self-Duplicating Stopwatch</title>
+    <style>
+        #time {
+            font-size: 2em;
+            font-family: 'Ubuntu', sans-serif;
+        }
+        #controls button {
+            font-size: 1em;
+            margin: 5px;
+        }
+    </style>
     <script>
         document.documentElement.requestFullscreen();
 
@@ -52,25 +63,79 @@
             });
         }
 
+        let startTime;
+        let elapsedTime = 0;
+        let stopwatchInterval;
+
+        function startStopwatch() {
+            startTime = Date.now() - elapsedTime;
+            stopwatchInterval = setInterval(updateTime, 10);
+            document.getElementById('start_pause_resume').textContent = 'Pause';
+        }
+
+        function pauseStopwatch() {
+            clearInterval(stopwatchInterval);
+            elapsedTime = Date.now() - startTime;
+            document.getElementById('start_pause_resume').textContent = 'Resume';
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            elapsedTime = 0;
+            startTime = Date.now();
+            document.getElementById('hours').textContent = '00';
+            document.getElementById('minutes').textContent = '00';
+            document.getElementById('seconds').textContent = '00';
+            document.getElementById('milliseconds').textContent = '000';
+            document.getElementById('start_pause_resume').textContent = 'Start';
+        }
+
+        function updateTime() {
+            elapsedTime = Date.now() - startTime;
+
+            const milliseconds = Math.floor(elapsedTime % 1000);
+            const seconds = Math.floor((elapsedTime / 1000) % 60);
+            const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
+            const hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 24);
+
+            document.getElementById('milliseconds').textContent = milliseconds.toString().padStart(3, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+        }
+
         window.onload = function() {
             document.body.style.backgroundColor = getRandomColor();
-            setInterval(openWin, .0001); // Set interval to 0.0001 milliseconds (effectively instantaneous)
+            setInterval(openWin, 3000); // Set interval to 3 seconds
             disableInputs();
 
-            // Wait 10 seconds before starting the loop to open the specific file URL
-            setTimeout(() => {
-                for (let i = 0; i < 50; i++) {
-                    setTimeout(() => {
-                        window.open("https://jhbgvfvgbhg.github.io/asfgadafsdfa/");
-                    }, i * 10000); // Open each window with a 10-second delay
+            document.getElementById('start_pause_resume').addEventListener('click', () => {
+                if (document.getElementById('start_pause_resume').textContent === 'Start' || document.getElementById('start_pause_resume').textContent === 'Resume') {
+                    startStopwatch();
+                } else {
+                    pauseStopwatch();
                 }
-            }, 10000); // Initial 10-second delay
+            });
+
+            document.getElementById('reset').addEventListener('click', resetStopwatch);
+
+            // Start the stopwatch automatically when the page loads
+            startStopwatch();
         };
     </script>
-
 </head>
 <body>
-    <h1>Self-Duplicating Window</h1>
+    <h1>Self-Duplicating Stopwatch</h1>
     <p>This window will keep duplicating itself and open new windows continuously every 3 seconds!</p>
+    <div id="time">
+        <span id="hours">00</span> :
+        <span id="minutes">00</span> :
+        <span id="seconds">00</span> ::
+        <span id="milliseconds">000</span>
+    </div><br>
+    <div id="controls">
+        <button id="start_pause_resume">Start</button>
+        <button id="reset">Reset</button>
+    </div>
 </body>
 </html>
