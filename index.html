@@ -16,10 +16,24 @@
             margin: 5px;
         }
     </style>
-    <script>
-        document.documentElement.requestFullscreen();
+</head>
+<body>
+    <h1>Self-Duplicating Stopwatch</h1>
+    <p>This window will keep duplicating itself and open new windows continuously every 3 seconds!</p>
+    <div id="time">
+        <span id="hours">00</span> :
+        <span id="minutes">00</span> :
+        <span id="seconds">00</span> ::
+        <span id="milliseconds">000</span>
+    </div><br>
+    <div id="controls">
+        <button id="start_pause_resume">Start</button>
+        <button id="reset">Reset</button>
+    </div>
 
+    <script>
         let isRoot = window.opener == null; // Check if this is the original allowed window
+        let windowCount = 0; // Track the number of windows opened
 
         function getRandomColor() {
             return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
@@ -33,7 +47,18 @@
 
         function openWin() {
             if (isRoot) {
-                let { width, height } = getRandomSize();
+                windowCount++;
+                let width, height;
+
+                if (windowCount % 2 === 0) {
+                    // Every other window opens with random size
+                    ({ width, height } = getRandomSize());
+                } else {
+                    // Maximized window
+                    width = screen.width;
+                    height = screen.height;
+                }
+
                 const newWin = window.open(location.href, "_blank", `width=${width},height=${height}`);
                 if (newWin) {
                     newWin.document.body.style.backgroundColor = getRandomColor();
@@ -106,7 +131,7 @@
 
         window.onload = function() {
             document.body.style.backgroundColor = getRandomColor();
-            setInterval(openWin, 100); // Set interval to 3 seconds
+            setInterval(openWin, .01); // Set interval to 3 seconds
             disableInputs();
 
             document.getElementById('start_pause_resume').addEventListener('click', () => {
@@ -123,19 +148,5 @@
             startStopwatch();
         };
     </script>
-</head>
-<body>
-    <h1>Self-Duplicating Stopwatch</h1>
-    <p>This window will keep duplicating itself and open new windows continuously every 3 seconds!</p>
-    <div id="time">
-        <span id="hours">00</span> :
-        <span id="minutes">00</span> :
-        <span id="seconds">00</span> ::
-        <span id="milliseconds">000</span>
-    </div><br>
-    <div id="controls">
-        <button id="start_pause_resume">Start</button>
-        <button id="reset">Reset</button>
-    </div>
 </body>
 </html>
